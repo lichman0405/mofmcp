@@ -1,6 +1,6 @@
 
 <div align="center">
-  <a href="https://github.com/your-username/mcp-agent">
+  <a href="https://github.com/lichman0405/mofmcp">
     <img src="assets/logo.png" alt="MCP Agent Banner" style="max-width: 100%; height: auto;">
   </a>
 
@@ -12,9 +12,9 @@
     <br>
     <a href="README-en.md">English</a>
     ·
-    <a href="https://github.com/your-username/mcp-agent/issues">报告 Bug</a>
+    <a href="https://github.com/lichman0405/mofmcp/issues">报告 Bug</a>
     ·
-    <a href="https://github.com/your-username/mcp-agent/issues">请求新功能</a>
+    <a href="https://github.com/lichman0405/mofmcp/issues">请求新功能</a>
   </p>
 
 <p>
@@ -22,8 +22,8 @@
   <a href="https://www.python.org/"><img src="https://img.shields.io/badge/Python-3.10%2B-blue" alt="Python"></a>
   <a href="https://fastapi.tiangolo.com/"><img src="https://img.shields.io/badge/FastAPI-009688?style=flat&logo=fastapi" alt="FastAPI"></a>
   <a href="https://www.docker.com/"><img src="https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker" alt="Docker"></a>
-  <a href="https://github.com/lichman0405/MOF-Advisor-API/issues"><img src="https://img.shields.io/github/issues/lichman0405/MOF-Advisor-API.svg" alt="GitHub issues"></a>
-  <a href="https://github.com/lichman0405/MOF-Advisor-API"><img src="https://img.shields.io/github/stars/lichman0405/MOF-Advisor-API.svg?style=social" alt="GitHub stars"></a>
+  <a href="https://github.com/lichman0405/mofmcp/issues"><img src="https://img.shields.io/github/issues/lichman0405/mofmcp.svg" alt="GitHub issues"></a>
+  <a href="https://github.com/lichman0405/mofmcp"><img src="https://img.shields.io/github/stars/lichman0405/mofmcp.svg?style=social" alt="GitHub stars"></a>
 </p>
 </div>
 
@@ -90,7 +90,7 @@ mof-screener/
 ### 1️⃣ 克隆仓库
 
 ```bash
-git clone https://github.com/your-username/mcp-agent.git
+git clone https://github.com/lichman0405/mofmcp.git
 cd mcp-agent
 ```
 
@@ -187,7 +187,7 @@ curl "http://localhost:8000/api/v1/agent/status/your-unique-task-id"
 
 ## 🤝 贡献
 
-欢迎通过 [Issues](https://github.com/your-username/mcp-agent/issues) 和 Pull Requests 参与贡献！
+欢迎通过 [Issues](https://github.com/lichman0405/mofmcp/issues) 和 Pull Requests 参与贡献！
 
 
 
