@@ -9,8 +9,8 @@
 import httpx
 import os
 from typing import Optional
+
 from app.core.logger import console
-from app.schemas.converter_schemas import ConverterResponse
 
 class ConverterClient:
     """A low-level client for the File Type Converter API."""
@@ -21,13 +21,9 @@ class ConverterClient:
         self.base_url = base_url
         self.client = httpx.Client(base_url=self.base_url, timeout=60.0)
 
-    def convert_file(self, input_path: str) -> Optional[ConverterResponse]:
+    def convert_file(self, input_path: str) -> Optional[bytes]:
         """
-        Calls the /convert/ endpoint and returns a response object
-        containing the path to the converted file.
-
-        Returns:
-            Optional[ConverterResponse]: A Pydantic object with status and output_path, or None on failure.
+        Calls the /convert/ endpoint and directly returns the binary content of the converted file.
         """
         console.info(f"[ConverterClient] Starting file conversion for {os.path.basename(input_path)}...")
 
@@ -43,9 +39,8 @@ class ConverterClient:
                 response = self.client.post("/convert/", files=files)
                 response.raise_for_status()
 
-                response_data = ConverterResponse.model_validate(response.json())
-                console.success(f"[ConverterClient] File conversion successful. Output path: {response_data.output_path}")
-                return response_data
+                console.success(f"[ConverterClient] File conversion successful, received {len(response.content)} bytes.")
+                return response.content
 
         except httpx.HTTPStatusError as e:
             console.error(f"[ConverterClient] HTTP error during conversion: {e.response.status_code} - {e.response.text}")
