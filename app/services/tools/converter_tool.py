@@ -46,7 +46,7 @@ class ConverterTool:
             try:
                 with open(output_path, "wb") as f:
                     f.write(converted_content)
-                return {"status": "success", "converted_file_path": output_path}
+                return {"status": "success", "output_file_path": output_path}
             except Exception as e:
                 return {"status": "failed", "error": f"Failed to save converted file: {e}"}
         else:

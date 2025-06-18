@@ -58,6 +58,6 @@ class MaceoptTool:
 
         # Return the result
         if success:
-            return {"status": "success", "optimized_file_path": output_path}
+            return {"status": "success", "output_file_path": output_path}
         else:
             return {"status": "failed", "error": "MACE optimization failed in client. Check logs for details."}

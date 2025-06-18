@@ -61,7 +61,7 @@ class XTBTool:
         if optimized_file_path:
             return {
                 "status": "success", 
-                "optimized_file_path": optimized_file_path,
+                "output_file_path": optimized_file_path, 
                 "output_directory": self.output_dir 
             }
         else:
