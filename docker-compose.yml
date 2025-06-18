@@ -1,0 +1,18 @@
+services:
+  mcp_agent:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mcp_agent_service
+    image: mcp_agent:latest
+    env_file:
+      - .env
+    ports:
+      - "1988:8000"
+    volumes:
+      - ./workspace:/app/workspace
+    restart: always
+    # extra_hosts is recommended for Linux hosts to make host.docker.internal work.
+    # For Docker Desktop (Mac/Windows), this line is not strictly necessary but doesn't hurt.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

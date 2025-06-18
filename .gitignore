@@ -1,0 +1,17 @@
+# The following files should be ignored by Git
+.env
+
+__pycache__
+
+
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+
+*.egg
+*.egg-info
+
+database.db
+
+.idea
