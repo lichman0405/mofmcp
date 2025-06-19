@@ -53,37 +53,37 @@ class ZeoPlusPlusClient:
             console.exception(f"[ZeoClient] An unexpected error in _call_api for {endpoint}: {e}")
             return None
 
-    def calculate_pore_diameter(self, file_path: str, ha: bool) -> Optional[PoreDiameterResponse]:
-        console.info(f"[ZeoClient] Calculating pore diameter for file: {file_path} with ha={ha}")
+    def calculate_pore_diameter(self, input_file_path: str, ha: bool) -> Optional[PoreDiameterResponse]:
+        console.info(f"[ZeoClient] Calculating pore diameter for file: {input_file_path} with ha={ha}")
         params = {"ha": ha}
-        response_data = self._call_api("/api/pore_diameter", file_path, params)
+        response_data = self._call_api("/api/pore_diameter", input_file_path, params)
         console.info(f"[ZeoClient] Pore diameter calculation response: {response_data}")
         return PoreDiameterResponse.model_validate(response_data) if response_data else None
 
-    def calculate_surface_area(self, file_path: str, chan_radius: float, probe_radius: float, samples: int, ha: bool) -> Optional[SurfaceAreaResponse]:
-        console.info(f"[ZeoClient] Calculating surface area for file: {file_path} with chan_radius={chan_radius}, probe_radius={probe_radius}, samples={samples}, ha={ha}")
+    def calculate_surface_area(self, input_file_path: str, chan_radius: float, probe_radius: float, samples: int, ha: bool) -> Optional[SurfaceAreaResponse]:
+        console.info(f"[ZeoClient] Calculating surface area for file: {input_file_path} with chan_radius={chan_radius}, probe_radius={probe_radius}, samples={samples}, ha={ha}")
         params = {"chan_radius": chan_radius, "probe_radius": probe_radius, "samples": samples, "ha": ha}
-        response_data = self._call_api("/api/surface_area", file_path, params)
+        response_data = self._call_api("/api/surface_area", input_file_path, params)
         console.info(f"[ZeoClient] Surface area calculation response: {response_data}")
         return SurfaceAreaResponse.model_validate(response_data) if response_data else None
 
-    def calculate_accessible_volume(self, file_path: str, chan_radius: float, probe_radius: float, samples: int, ha: bool) -> Optional[AccessibleVolumeResponse]:
-        console.info(f"[ZeoClient] Calculating accessible volume for file: {file_path} with chan_radius={chan_radius}, probe_radius={probe_radius}, samples={samples}, ha={ha}")
+    def calculate_accessible_volume(self, input_file_path: str, chan_radius: float, probe_radius: float, samples: int, ha: bool) -> Optional[AccessibleVolumeResponse]:
+        console.info(f"[ZeoClient] Calculating accessible volume for file: {input_file_path} with chan_radius={chan_radius}, probe_radius={probe_radius}, samples={samples}, ha={ha}")
         params = {"chan_radius": chan_radius, "probe_radius": probe_radius, "samples": samples, "ha": ha}
-        response_data = self._call_api("/api/accessible_volume", file_path, params)
+        response_data = self._call_api("/api/accessible_volume", input_file_path, params)
         console.info(f"[ZeoClient] Accessible volume calculation response: {response_data}")
         return AccessibleVolumeResponse.model_validate(response_data) if response_data else None
 
-    def calculate_probe_volume(self, file_path: str, chan_radius: float, probe_radius: float, samples: int, ha: bool) -> Optional[ProbeVolumeResponse]:
-        console.info(f"[ZeoClient] Calculating probe volume for file: {file_path} with chan_radius={chan_radius}, probe_radius={probe_radius}, samples={samples}, ha={ha}")
+    def calculate_probe_volume(self, input_file_path: str, chan_radius: float, probe_radius: float, samples: int, ha: bool) -> Optional[ProbeVolumeResponse]:
+        console.info(f"[ZeoClient] Calculating probe volume for file: {input_file_path} with chan_radius={chan_radius}, probe_radius={probe_radius}, samples={samples}, ha={ha}")
         params = {"chan_radius": chan_radius, "probe_radius": probe_radius, "samples": samples, "ha": ha}
-        response_data = self._call_api("/api/probe_volume", file_path, params)
+        response_data = self._call_api("/api/probe_volume", input_file_path, params)
         console.info(f"[ZeoClient] Probe volume calculation response: {response_data}")
         return ProbeVolumeResponse.model_validate(response_data) if response_data else None
 
-    def analyze_channels(self, file_path: str, probe_radius: float, ha: bool) -> Optional[ChannelAnalysisResponse]:
-        console.info(f"[ZeoClient] Analyzing channels for file: {file_path} with probe_radius={probe_radius}, ha={ha}")
+    def analyze_channels(self, input_file_path: str, probe_radius: float, ha: bool) -> Optional[ChannelAnalysisResponse]:
+        console.info(f"[ZeoClient] Analyzing channels for file: {input_file_path} with probe_radius={probe_radius}, ha={ha}")
         params = {"probe_radius": probe_radius, "ha": ha}
-        response_data = self._call_api("/api/channel_analysis", file_path, params)
+        response_data = self._call_api("/api/channel_analysis", input_file_path, params)
         console.info(f"[ZeoClient] Channel analysis response: {response_data}")
         return ChannelAnalysisResponse.model_validate(response_data) if response_data else None
