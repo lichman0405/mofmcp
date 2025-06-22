@@ -13,15 +13,13 @@ from openai import OpenAI
 from app.core.config import settings
 from app.core.logger import console
 from app.services.tools.maceopt_tool import MACEOPT_TOOL_DEF
-from app.services.tools.xtb_tool import XTB_TOOL_DEF
-from app.services.tools.converter_tool import CONVERTER_TOOL_DEF
+from app.services.tools.dftb_tool import DFTB_TOOL_DEF
 from app.services.tools.zeo_tool import ZEO_TOOL_DEFS
 
 # Define all tool definitions in a single list for easy management
 ALL_TOOL_DEFS = [
     MACEOPT_TOOL_DEF,
-    XTB_TOOL_DEF,
-    CONVERTER_TOOL_DEF,
+    DFTB_TOOL_DEF,
     *ZEO_TOOL_DEFS
 ]
 

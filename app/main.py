@@ -2,7 +2,7 @@
 # This is the main entry point for the MCP Agent FastAPI application.
 # It initializes the FastAPI app, includes the API routers, and defines startup/shutdown events.
 # Author: Shibo Li
-# Date: 2025-06-18
+# Date: 2025-06-22
 # Version: 1.0.0
 
 from fastapi import FastAPI
@@ -10,36 +10,34 @@ from app.core.config import settings
 from app.core.logger import console
 from app.api import endpoints as api_router
 
-# Initialize the FastAPI application and use the project name from the config as the title.
-# The title and openapi_url will be displayed in the automatically generated API documentation (e.g., /docs).
+# Initialize the FastAPI application with basic configuration
+# This includes setting the title, description, version, and OpenAPI URL
 app = FastAPI(
     title=settings.PROJECT_NAME,
+    description="A dynamic computational chemistry workflow orchestrator powered by LLM.",
+    version="1.0.0",
     openapi_url=f"{settings.API_V1_STR}/openapi.json"
 )
 
-# Print a log message when the application starts to confirm the configuration was successfully loaded.
+# print startup message when the application starts
 @app.on_event("startup")
 def startup_event():
     console.rule(f"[bold green]Starting up {settings.PROJECT_NAME}[/bold green]")
     console.info(f"LLM Provider set to: [bold cyan]{settings.LLM_PROVIDER}[/bold cyan]")
-    console.info(f"Workspace directory is: {settings.TASKS_DIR}")
-    console.success("Application startup complete.")
+    console.info(f"Task Workspace directory is: {settings.TASKS_DIR}")
+    console.success("Application startup complete. Ready to accept requests.")
 
-# Include all API routes defined in app/api/endpoints.py.
-# The prefix will add a uniform prefix to all route URLs in this file.
-# Tags will group these routes in the API documentation for easier viewing.
-app.include_router(api_router.router, prefix=settings.API_V1_STR, tags=["Agent Endpoints"])
+# api_router is imported from app/api/endpoints.py
+app.include_router(api_router.router, prefix=settings.API_V1_STR, tags=["MCP Agent"])
 
-# Define a root route at /, primarily for a simple health check.
-# You can confirm the service is running by visiting http://localhost:8000/.
+# define a simple health check endpoint
+# This endpoint can be used to verify that the API is running and accessible
 @app.get("/", tags=["Health Check"])
 def read_root():
-    """
-    A simple health check endpoint to confirm the service is running.
-    """
+    """A simple health check endpoint."""
     return {"status": "ok", "message": f"Welcome to {settings.PROJECT_NAME}! Visit /docs for API details."}
 
-# Print a log message when the application shuts down.
+# print shutdown message when the application is stopped
 @app.on_event("shutdown")
 def shutdown_event():
     console.warning(f"--- Shutting down {settings.PROJECT_NAME} ---")

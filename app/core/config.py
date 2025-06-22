@@ -56,7 +56,6 @@ class Settings(BaseSettings):
     ZEO_API_BASE_URL: str
     MACEOPT_API_BASE_URL: str
     XTB_API_BASE_URL: str
-    CONVERTER_API_BASE_URL: str
 
     # workspace settings, with default values
     WORKSPACE_DIR: str = os.path.join(ROOT_DIR, "workspace")

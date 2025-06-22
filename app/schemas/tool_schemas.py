@@ -9,9 +9,13 @@ from typing import Literal
 
 # MACEOPT Optimization Tool Input Schema
 class MaceoptToolInput(BaseModel):
-    input_file_path: str = Field(..., description="The absolute path to the source structure file that needs to be optimized.")
+    """
+    Defines the input parameters for the MACEOPT optimization tool.
+    """
+    input_file_path: str = Field(..., description="The absolute path to the source structure file (e.g., .cif) to be optimized.")
     fmax: float = Field(0.1, description="Force tolerance for the BFGS optimizer.")
-    device: str = Field("cpu", description="The device to run MACE on, can be 'cpu' or 'cuda'.")
+    device: str = Field("cpu", description="Device to run MACE on, can be 'cpu' or 'cuda'.")
+
 
 # Zeo++ Analysis Tool Input Schemas
 class ZeoPoreDiameterInput(BaseModel):
@@ -44,18 +48,10 @@ class ZeoChannelAnalysisInput(BaseModel):
     probe_radius: float = Field(..., description="Radius of the probe molecule in Angstroms.")
     ha: bool = Field(True, description="Enable high accuracy mode.")
 
-# File Converter Tool Input Schema
-class FileConverterInput(BaseModel):
-    input_file_path: str = Field(..., description="The absolute path to the source structure file that needs to be converted.")
-    target_format: Literal["xyz", "cif"] = Field(..., description="The desired output file format. Can be 'xyz' or 'cif'.")
-
-# xTB Tool Input Schema
-class XTBToolInput(BaseModel):
+class DFTBToolInput(BaseModel):
     """
-    Defines the input parameters for the xTB geometry optimization tool.
-    Note: This tool strictly requires an .xyz file as input.
+    Defines the input parameters for the DFTB+ geometry optimization tool.
     """
-    input_file_path: str = Field(..., description="The absolute path to the .xyz structure file.")
-    charge: int = Field(0, description="Total charge of the system.")
-    uhf: int = Field(0, description="Number of unpaired electrons for unrestricted Hartree-Fock calculations.")
-    gfn: Literal[0, 1, 2] = Field(2, description="The GFN-xTB version to use (0, 1, or 2).")
+    input_file_path: str = Field(..., description="The absolute path to the source CIF file.")
+    fmax: float = Field(0.1, description="Force convergence threshold in eV/Angstrom.")
+    method: Literal["GFN1-xTB", "GFN2-xTB"] = Field("GFN2-xTB", description="GFN-xTB method to use.")

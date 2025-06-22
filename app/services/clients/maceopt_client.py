@@ -1,77 +1,61 @@
 # app/services/clients/maceopt_client.py
-# The module provides a low-level client for interacting with the MACEOPT Geometry Optimization API.
-# It includes methods for performing geometry optimization and downloading the optimized structure.
+# This module contains the updated low-level client for the MACEOPT API.
+# It now handles the structured JSON response from the /optimize endpoint.
 # Author: Shibo Li
-# Date: 2025-06-17
-# Version: 0.1.0
-
+# Date: 2025-06-22
+# Version: 0.7.0
 
 import httpx
 import os
+from typing import Optional
 
 from app.core.logger import console
 from app.schemas.maceopt_schemas import MaceoptOptimizeResponse
 
 class MaceoptClient:
-    """A low-level client for the MACEOPT Geometry Optimization API."""
+    """A low-level client for the updated MACEOPT Geometry Optimization API."""
 
     def __init__(self, base_url: str):
         if not base_url:
             raise ValueError("MACEOPT API base URL cannot be empty.")
         self.base_url = base_url
-        self.client = httpx.Client(base_url=self.base_url, timeout=600.0) 
+        self.client = httpx.Client(base_url=self.base_url, timeout=600.0)
 
-    def optimize_and_save(self, input_path: str, output_path: str, fmax: float, device: str) -> bool:
+    def optimize(self, input_path: str, fmax: float, device: str) -> Optional[MaceoptOptimizeResponse]:
         """
-        Performs geometry optimization by calling /optimize and then /download.
-        Saves the optimized structure to the specified output_path.
-
-        Returns:
-            bool: True if the entire process was successful, False otherwise.
+        Calls the /optimize endpoint and returns the full structured JSON response.
         """
-        console.info(f"[MaceoptClient] Starting optimization for {os.path.basename(input_path)}...")
-        
+        console.info(f"[MaceoptClient] Submitting optimization for {os.path.basename(input_path)}...")
         try:
-            # check if input file exists
-            if not os.path.exists(input_path):
-                console.error(f"[MaceoptClient] Input file not found: {input_path}")
-                return False
-
             with open(input_path, "rb") as f:
-                files = {"structure_file": (os.path.basename(input_path), f, "application/octet-stream")}
+                files = {"structure_file": (os.path.basename(input_path), f)}
                 data = {"fmax": str(fmax), "device": device}
                 
-                console.info(f"[MaceoptClient] Calling POST /optimize...")
-                optimize_response = self.client.post("/optimize", files=files, data=data)
-                optimize_response.raise_for_status()
-
-                # parse the response, feedback the path of optimized structure
-                console.info("[MaceoptClient] Parsing optimization response...")
-                path_data = MaceoptOptimizeResponse.model_validate(optimize_response.json())
-                server_path = path_data.output_path
+                response = self.client.post("/optimize", files=files, data=data)
+                response.raise_for_status()
                 
-                if not server_path:
-                    console.error("[MaceoptClient] /optimize did not return a valid output path.")
-                    return False
-                
-                console.success(f"[MaceoptClient] Optimization task completed. Server path: {server_path}")
-
-            # download the optimized structure from the server
-            console.info(f"[MaceoptClient] Calling GET /download for path: {server_path}...")
-            params = {"path": server_path}
-            download_response = self.client.get("/download", params=params)
-            download_response.raise_for_status()
-
-            # save the downloaded content to the specified output path, temperately.
-            with open(output_path, "wb") as f_out:
-                f_out.write(download_response.content)
-            
-            console.success(f"[MaceoptClient] Optimized structure saved to: {output_path}")
-            return True
-
+                response_data = MaceoptOptimizeResponse.model_validate(response.json())
+                console.success("[MaceoptClient] Optimization task submitted and processed successfully.")
+                return response_data
         except httpx.HTTPStatusError as e:
-            console.error(f"[MaceoptClient] HTTP error during optimization: {e.response.status_code} - {e.response.text}")
+            console.error(f"[MaceoptClient] HTTP error during optimization submission: {e.response.status_code} - {e.response.text}")
         except Exception as e:
-            console.exception(f"[MaceoptClient] An unexpected error occurred: {e}")
-        
-        return False
+            console.exception(f"[MaceoptClient] An unexpected error occurred in optimize(): {e}")
+        return None
+
+    def download_file(self, download_link: str) -> Optional[bytes]:
+        """
+        Downloads a file from a given path (e.g., from the download_links).
+        """
+        console.info(f"[MaceoptClient] Downloading file from link: {download_link}...")
+        try:
+            full_url = httpx.URL(self.base_url).join(download_link)
+            response = self.client.get(full_url)
+            response.raise_for_status()
+            console.success(f"[MaceoptClient] File downloaded successfully ({len(response.content)} bytes).")
+            return response.content
+        except httpx.HTTPStatusError as e:
+            console.error(f"[MaceoptClient] HTTP error during file download: {e.response.status_code} - {e.response.text}")
+        except Exception as e:
+            console.exception(f"[MaceoptClient] An unexpected error occurred in download_file(): {e}")
+        return None

@@ -1,8 +1,7 @@
 # app/services/tools/maceopt_tool.py
-# The module provides a high-level tool for performing geometry optimization on crystal structures using the MACE model.
-# It defines the tool metadata, input schema, and the execution logic for the optimization task.
+# Updated MACEOPT tool to align with the new API version.
 # Author: Shibo Li
-# Date: 2025-06-18
+# Date: 2025-06-22
 # Version: 0.1.0
 
 import os
@@ -12,52 +11,57 @@ from app.schemas.tool_schemas import MaceoptToolInput
 from app.services.clients.maceopt_client import MaceoptClient
 from app.core.logger import console
 
-# Tool description definition
+
 MACEOPT_TOOL_DEF = {
     "tool_name": "optimize_structure_with_mace",
-    "description": "Performs geometry optimization on a crystal structure using the MACE machine learning potential. This is an excellent first step for any new structure to get a relaxed, low-energy conformation before further analysis. It is generally faster than xTB for similar accuracy. The input file should be an .xyz file.",
+    "description": "Performs geometry optimization on a crystal structure (CIF supported) using the MACE machine learning potential. This is an excellent first step for any new structure to get a relaxed, low-energy conformation.",
     "input_schema": MaceoptToolInput.model_json_schema()
 }
-
-# Executable tool class definition
+ 
 class MaceoptTool:
     def __init__(self, task_id: str):
         self.task_dir = os.path.join(settings.TASKS_DIR, task_id)
-        # Create a unique directory for temporary files for this task
-        unique_id = str(uuid.uuid4())[:5]
-        self.temp_dir = os.path.join(self.task_dir, "temp_files", f"maceopt_output_{unique_id}")
+        self.temp_dir = os.path.join(self.task_dir, "temp_files")
         os.makedirs(self.temp_dir, exist_ok=True)
-        
         self.client = MaceoptClient(base_url=settings.MACEOPT_API_BASE_URL)
 
     def execute(self, tool_input: dict) -> dict:
         """
-        Executes the MACE optimization tool.
-        It now accepts a dictionary and validates it internally.
+        Executes the MACE optimization tool using the updated client.
         """
-        # validate the input parameters using the Pydantic model
         try:
             validated_input = MaceoptToolInput.model_validate(tool_input)
         except Exception as e:
-            error_message = f"Invalid input parameters for MACEOPT tool: {e}"
-            console.error(f"[MaceoptTool] {error_message}")
-            return {"status": "failed", "error": error_message}
+            return {"status": "failed", "error": f"Invalid input parameters for MACEOPT tool: {e}"}
 
-        # Generate a unique output path for the optimized file
-        filename = os.path.basename(validated_input.input_file_path)
-        base, ext = os.path.splitext(filename)
-        output_path = os.path.join(self.temp_dir, f"{base}_maceopt{ext}")
-
-        # Call the underlying client to perform the actual operation
-        success = self.client.optimize_and_save(
+        optimize_response = self.client.optimize(
             input_path=validated_input.input_file_path,
-            output_path=output_path,
             fmax=validated_input.fmax,
             device=validated_input.device
         )
 
-        # Return the result
-        if success:
-            return {"status": "success", "output_file_path": output_path}
-        else:
-            return {"status": "failed", "error": "MACE optimization failed in client. Check logs for details."}
+        if not (optimize_response and optimize_response.success):
+            return {"status": "failed", "error": "MACE optimization failed at the API level. Check logs."}
+
+        download_link = optimize_response.download_links.cif
+        optimized_content = self.client.download_file(download_link)
+
+        if not optimized_content:
+            return {"status": "failed", "error": "Failed to download the optimized CIF file from MACEOPT API."}
+
+        input_basename, _ = os.path.splitext(os.path.basename(validated_input.input_file_path))
+        new_filename = f"{input_basename}_maceopt.cif"
+        output_path = os.path.join(self.temp_dir, new_filename)
+        
+        try:
+            with open(output_path, "wb") as f:
+                f.write(optimized_content)
+            console.success(f"[MaceoptTool] Saved optimized structure to {output_path}")
+            return {
+                "status": "success",
+                "output_file_path": output_path, 
+                "energy": optimize_response.energy,
+                "stress": optimize_response.stress
+            }
+        except Exception as e:
+            return {"status": "failed", "error": f"Failed to save optimized file: {e}"}

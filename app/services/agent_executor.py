@@ -9,9 +9,8 @@ import json
 from typing import Dict, Any, List
 
 from app.core.logger import console
-from app.services.tools.converter_tool import ConverterTool
 from app.services.tools.maceopt_tool import MaceoptTool
-from app.services.tools.xtb_tool import XTBTool
+from app.services.tools.dftb_tool import DFTBTool
 from app.services.tools.zeo_tool import ZeoTool
 
 class AgentExecutor:
@@ -21,20 +20,19 @@ class AgentExecutor:
     """
     def __init__(self, task_id: str):
         self.task_id = task_id
-        # context stores the execution results of each step, serving as the short-term memory of the agent
         self.context: Dict[str, Any] = {}
-        
-        # Register all available tools
         self._register_tools()
 
     def _register_tools(self):
         """Initializes all tool classes and maps them to their names."""
-        zeo_tool_instance = ZeoTool() # ZeoTool methods are stateless, so a single instance can be shared
+        zeo_tool_instance = ZeoTool() 
         
         self.tools = {
-            "convert_structure_file": ConverterTool(self.task_id).execute,
+            # MaceoptTool methods
             "optimize_structure_with_mace": MaceoptTool(self.task_id).execute,
-            "optimize_structure_with_xtb": XTBTool(self.task_id).execute,
+            # DFTBTool methods
+            "optimize_structure_with_dftb_xtb": DFTBTool(self.task_id).execute,
+            # ZeoTool methods
             "calculate_pore_diameter": zeo_tool_instance.calculate_pore_diameter,
             "calculate_surface_area": zeo_tool_instance.calculate_surface_area,
             "calculate_accessible_volume": zeo_tool_instance.calculate_accessible_volume,
@@ -50,12 +48,10 @@ class AgentExecutor:
         resolved_params = {}
         for key, value in params.items():
             if isinstance(value, str) and value.startswith("{{") and value.endswith("}}"):
-                # Reference format: {{steps.step_1.output.optimized_file_path}}
                 try:
                     ref_parts = value.strip('{}').split('.')
-                    # ref_parts will be ['steps', 'step_1', 'output', 'optimized_file_path']
-                    step_name_ref = ref_parts[1]  # e.g., "step_1"
-                    output_key = ref_parts[3]     # e.g., "optimized_file_path"
+                    step_name_ref = ref_parts[1]  
+                    output_key = ref_parts[3]    
                     
                     resolved_value = self.context.get(step_name_ref, {}).get("output", {}).get(output_key)
                     
